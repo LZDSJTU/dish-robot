@@ -25,21 +25,20 @@ void cmdCallback(const geometry_msgs::Twist cmd_vel){
     data_ptr[3] = (uint8_t)(data_len>>8);
     data_ptr[4] = (uint8_t)(data_len & 0xff);
     // vel_x
-    data_ptr[5] = vel_x;
-    data_ptr[6] = vel_y;
-    data_ptr[7] = vel_angle;
+    data_ptr[5] = vel_y;
+    data_ptr[6] = vel_x;
+    data_ptr[7] = -1.0 * vel_angle;
     data_ptr[8] = 0x00;
-    if(cmd_vel.linear.x < 0){
+
+    if(cmd_vel.linear.y > 0){
         data_ptr[8] += 4;
     }
-    if(cmd_vel.linear.y < 0){
+    if(cmd_vel.linear.x < 0){
         data_ptr[8] += 2;
     }
     if(cmd_vel.angular.z < 0){
         data_ptr[8] += 1;
     }
-
-//    data_ptr[9] = data_ptr[8]+data_ptr[7]+data_ptr[6]+data_ptr[5]+data_ptr[4]+data_ptr[3]+data_ptr[2];
 
     data_ptr[9] = 0x00;
 

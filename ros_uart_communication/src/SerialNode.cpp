@@ -11,6 +11,23 @@
 
 using namespace SerialNode;
 using namespace boost;
+
+/*
+ * @brief 16进制 转化为 浮点型
+ * @param
+ * @return
+ */
+void hex_to_float(const char hex[4], float& val)
+{
+    char* p = (char*)(&val);
+
+    *p = hex[0];
+    *(p+1) = hex[1];
+    *(p+2) = hex[2];
+    *(p+3) = hex[3];
+
+}
+
 Serial::Serial(ros::NodeHandle nh)
 :nh(nh){
 //    nh.param("serial_port", serial_port_, string("/dev/ttyUSB0"));
@@ -42,59 +59,34 @@ void Serial::dumpBuffer(const char *buffer, int elements) {
 
 void Serial::serialCall(ByteVector current_data, int id) {
     ros::Publisher &serial_pub = pub_[id];
-    std::cout<<"enter serialcall"<<std::endl;
     stringstream recv_name;
     if(!serial_pub){
         recv_name<<"/velocityFeedback";
         serial_pub = nh.advertise<geometry_msgs::Twist>(recv_name.str(), 100);
     }
 
-    double vel_x, vel_y, vel_angle;
-    if(current_data[3]==7){
-        vel_x = -1.0 * (double)(current_data[0]) / 100.0;
-        vel_y = -1.0 * (double)(current_data[1]) / 100.0;
-        vel_angle = -1.0 * (double)(current_data[2]) / 100.0;
+    float vel_x, vel_y, vel_angle;
+
+    char hex[4];
+    for(int i = 0; i < 4; i++){
+        hex[i] = current_data[i];
     }
-    if(current_data[3]==6){
-        vel_x = -1.0 * (double)(current_data[0]) / 100.0;
-        vel_y = -1.0 * (double)(current_data[1]) / 100.0;
-        vel_angle = (double)(current_data[2]) / 100.0;
+    hex_to_float(hex, vel_x);
+
+    for(int i = 0; i < 4; i++){
+        hex[i] = current_data[i+4];
     }
-    if(current_data[3]==5){
-        vel_x = -1.0 * (double)(current_data[0]) / 100.0;
-        vel_y =  (double)(current_data[1]) / 100.0;
-        vel_angle = -1.0 * (double)(current_data[2]) / 100.0;
+    hex_to_float(hex, vel_y);
+
+    for(int i = 0; i < 4; i++){
+        hex[i] = current_data[i+8];
     }
-    if(current_data[3]==4){
-        vel_x = -1.0 * (double)(current_data[0]) / 100.0;
-        vel_y = (double)(current_data[1]) / 100.0;
-        vel_angle = (double)(current_data[2]) / 100.0;
-    }
-    if(current_data[3]==3){
-        vel_x = (double)(current_data[0]) / 100.0;
-        vel_y = -1.0 * (double)(current_data[1]) / 100.0;
-        vel_angle = -1.0 * (double)(current_data[2]) / 100.0;
-    }
-    if(current_data[3]==2){
-        vel_x = (double)(current_data[0]) / 100.0;
-        vel_y = -1.0 * (double)(current_data[1]) / 100.0;
-        vel_angle = (double)(current_data[2]) / 100.0;
-    }
-    if(current_data[3]==1){
-        vel_x = (double)(current_data[0]) / 100.0;
-        vel_y = (double)(current_data[1]) / 100.0;
-        vel_angle = -1.0 * (double)(current_data[2]) / 100.0;
-    }
-    if(current_data[3]==0){
-        vel_x = (double)(current_data[0]) / 100.0;
-        vel_y = (double)(current_data[1]) / 100.0;
-        vel_angle = (double)(current_data[2]) / 100.0;
-    }
+    hex_to_float(hex, vel_angle);
 
     geometry_msgs::Twist pub_data;
-    pub_data.linear.x = vel_x;
-    pub_data.linear.y = vel_y;
-    pub_data.angular.z = vel_angle;
+    pub_data.linear.x = vel_y;
+    pub_data.linear.y = -1.0 * vel_x;
+    pub_data.angular.z = -1.0 * vel_angle;
 
     serial_pub.publish(pub_data);
 }

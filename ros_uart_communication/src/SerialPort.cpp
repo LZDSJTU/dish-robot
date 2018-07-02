@@ -24,7 +24,7 @@ namespace serial{
     }
 
     void SerialPort::start_a_read() {
-        cout<<"SerialPort::start_a_read called !!"<<endl;
+//        cout<<"SerialPort::start_a_read called !!"<<endl;
 
         mutex::scoped_lock(m_serialMutex);
 
@@ -65,18 +65,18 @@ namespace serial{
     }
 
     void SerialPort::readHandler(const system::error_code &ec, size_t bytesTransferred) {
-        cout<<"readhandler!!!"<<endl;
-        cout<<"bytesTransferred: \t"<<bytesTransferred<<endl;
+//        cout<<"readhandler!!!"<<endl;
+//        cout<<"bytesTransferred: \t"<<bytesTransferred<<endl;
 
         if(ec){
             //TODO: 报错
             cout<<"SerialPort read error!!"<<endl;
             return;
         }
-        for (size_t i = 0; i < bytesTransferred; i++) {
-            cout<<(int)(m_tempBuf.at(i))<<" ";
-        }
-        cout<<endl;
+//        for (size_t i = 0; i < bytesTransferred; i++) {
+//            cout<<(int)(m_tempBuf.at(i))<<" ";
+//        }
+//        cout<<endl;
 
         /*处理每个字节*/
         for (size_t i = 0; i < bytesTransferred; i++) {
@@ -91,7 +91,7 @@ namespace serial{
                         m_state = WAITING_FF2;
                         // 启动超时定时器
                         m_ptimer.reset(new deadline_timer(*m_pios,
-                                                          posix_time::milliseconds(m_timeOut)));
+                                                          posix_time::milliseconds(40)));
                         m_ptimer->async_wait(bind(
                                 &SerialPort::timeoutHandler,
                                 this,
@@ -117,7 +117,6 @@ namespace serial{
                         /*读出数据报文的长度, 并将m_currentData的大小重设为该长度*/
                         uint16_t dataLen =
                                 ((uint16_t)(m_currentHeader[1]) << 8) + m_currentHeader[2];
-                        cout<<dataLen<<endl ;
                         if (dataLen>0&&dataLen<18)
                         {
                             m_currentData.resize(dataLen, 0);
@@ -147,8 +146,8 @@ namespace serial{
                         byteSum += m_currentHeader.at(k);
                     for (size_t k=0; k<m_currentData.size(); k++)
                         byteSum += m_currentData.at(k);
-
-                    if((uint8_t)(byteSum%255) == byte){
+//                    cout<<"bytesum is : "<<(uint8_t)(byteSum%256)<<endl;
+                    if((uint8_t)(byteSum%256) == byte){
                         cout<<"A new datagram received!!"<<endl;
                         m_dataCallbackFunc(m_currentData, m_currentHeader[0]);
                     } else{

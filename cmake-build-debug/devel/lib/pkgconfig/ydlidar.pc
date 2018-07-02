@@ -1,0 +1,8 @@
+prefix=/home/liang/robot_ws/src/cmake-build-debug/devel
+
+Name: ydlidar
+Description: Description of ydlidar
+Version: 1.1.2
+Cflags: 
+Libs: -L/home/liang/robot_ws/src/cmake-build-debug/devel/lib 
+Requires: 

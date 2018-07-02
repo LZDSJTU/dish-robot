@@ -1,0 +1,8 @@
+prefix=/home/liang/robot_ws/src/cmake-build-debug/devel
+
+Name: handsfree_2dnav
+Description: Description of handsfree_2dnav
+Version: 0.1.0
+Cflags: 
+Libs: -L/home/liang/robot_ws/src/cmake-build-debug/devel/lib 
+Requires: 
